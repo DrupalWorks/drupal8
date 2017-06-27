@@ -18,8 +18,11 @@ jobs:
             export DOCKER_HOST=localhost:2374
             export DOMAIN="drupal8.${DOCKSAL_HOST}"
             export COMPOSE_PROJECT_NAME_SAFE="drupal8"
-            docker info
       - run: env
+      - run:
+          name: Check Docker
+          command: |
+            docker version
       - run:
           name: Deploy sandbox
           command: |
