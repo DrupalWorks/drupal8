@@ -1,0 +1,58 @@
+version: '3.1'
+
+services:
+  cli:
+    hostname: cli
+    image: docksal/cli:edge-php7
+    volumes:
+      - docksal_ssh_agent:/.ssh-agent:ro
+      - project_root:/var/www:rw,nocopy
+    environment:
+      XDEBUG_ENABLED: '0'
+    networks:
+      - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
+  db:
+    hostname: db
+    image: docksal/db:1.0-mysql-5.5
+    volumes:
+      - project_root:/var/www:ro,nocopy
+    environment:
+      MYSQL_DATABASE: default
+      MYSQL_PASSWORD: user
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+    networks:
+      - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
+  web:
+    hostname: web
+    image: docksal/web:1.0-apache2.2
+    volumes:
+      - project_root:/var/www:ro,nocopy
+    networks:
+      - backend
+      - traefik
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.backend.loadbalancer.swarm=true"
+        - "traefik.port=80"
+        - "traefik.frontend.rule=Host:${DOMAIN}"
+        - "traefik.docker.network=traefik"
+
+networks:
+  traefik:
+    external: true
+  backend:
+    driver: overlay
+
+volumes:
+  docksal_ssh_agent:
+    external: true
+  project_root: {}

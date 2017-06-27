@@ -1,0 +1,26 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: ~/build
+    docker:
+      - image: docksal/bitbucket-pipelines-agent:edge
+    steps:
+      - checkout
+      - run: pwd
+      - run: ls -la
+      - run: whoami
+      - run: env
+      - run:
+          name: Configure build environment
+          command: |
+            build-env
+            export DOCKER_HOST=localhost:2374
+            export DOMAIN="drupal8.${DOCKSAL_HOST}"
+            export COMPOSE_PROJECT_NAME_SAFE="drupal8"
+            docker info
+      - run: env
+      - run:
+          name: Deploy sandbox
+          command: |
+            docker stack deploy --compose-file .docksal/stack.yml "$COMPOSE_PROJECT_NAME_SAFE"
