@@ -11,13 +11,14 @@ jobs:
       - run: ls -la
       - run: whoami
       - run: env
+      - run: cat $HOME/.circlerc
       - run:
           name: Configure build environment
           command: |
             build-env
-            export DOCKER_HOST=localhost:2374
-            export DOMAIN="drupal8.${DOCKSAL_HOST}"
-            export COMPOSE_PROJECT_NAME_SAFE="drupal8"
+            echo "export DOCKER_HOST=localhost:2374" >> $HOME/.circlerc
+            echo "export DOMAIN=drupal8.${DOCKSAL_HOST}" >> $HOME/.circlerc
+            echo "export COMPOSE_PROJECT_NAME_SAFE=drupal8" >> $HOME/.circlerc
       - run: env
       - run:
           name: Check Docker
