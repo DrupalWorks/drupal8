@@ -2,23 +2,18 @@ version: 2
 
 jobs:
   build:
-    working_directory: ~/build
+    working_directory: /home/agent/build
     docker:
       - image: docksal/bitbucket-pipelines-agent:edge
+    environment:
+       BASH_ENV: /home/agent/.bashrc
     steps:
       - checkout
-      - run: pwd
-      - run: ls -la
-      - run: whoami
-      - run: env
-      - run: cat $HOME/.circlerc
       - run:
           name: Configure build environment
           command: |
-            build-env
-            echo "export DOCKER_HOST=localhost:2374" >> $HOME/.circlerc
-            echo "export DOMAIN=drupal8.${DOCKSAL_HOST}" >> $HOME/.circlerc
-            echo "export COMPOSE_PROJECT_NAME_SAFE=drupal8" >> $HOME/.circlerc
+            touch $BASH_ENV
+            echo 'source build-env' >> $BASH_ENV
       - run: env
       - run:
           name: Check Docker
@@ -27,4 +22,4 @@ jobs:
       - run:
           name: Deploy sandbox
           command: |
-            docker stack deploy --compose-file .docksal/stack.yml "$COMPOSE_PROJECT_NAME_SAFE"
+            docker stack deploy --compose-file .docksal/stack.yml "DOCKER_STACK_NAME"
